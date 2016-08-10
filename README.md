@@ -1,1 +1,3 @@
 #CTPTradeService
+
+作为CTPService交易模块的客户端程序，同时为算法模块提供各种交易方式的简化接口。
