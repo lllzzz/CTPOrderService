@@ -13,6 +13,6 @@ class C():
     @staticmethod
     def get(sec, key):
         cp = ConfigParser()
-        cp.read(self.path)
+        cp.read(C.path)
         return cp.get(sec, key)
 

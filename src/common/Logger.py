@@ -6,7 +6,7 @@ from C import C
 
 class Logger():
 
-    TYPE_INFO = 'INFO'
+    INFO = 'INFO'
 
     def __init__(self):
         self.path = C.get('path', 'log')
@@ -15,9 +15,8 @@ class Logger():
         dateTime = datetime.now()
         fileNameFormat = '%Y%m%d_' + fileName + '.log'
         fileName = datetime.strftime(dateTime, fileNameFormat)
-
         now = str(dateTime)
-        content = now + '|[' + type + ']|' + tag;
+        content = now + '|[' + level + ']|' + logName;
         for k in msg:
             content += '|' + k + '|' + str(msg[k])
         content += '\n'

@@ -11,21 +11,22 @@ class Rds():
 
     @staticmethod
     def getLocal():
-        return Rds('127.0.0.1', 6379, 1)
+        obj = Rds('127.0.0.1', 6379, 1)
+        return obj.rds
 
     @staticmethod
     def getRds():
         env = C.get('sys', 'env')
         host = C.get('redis_' + env, 'host')
         db = C.get('redis_' + env, 'db')
-        return Rds(host, 6379, db)
+        obj = Rds(host, 6379, db)
+        return obj.rds
 
     @staticmethod
     def getSender():
-        obj = Rds.getRds()
-        return obj
+        return Rds.getRds()
 
     @staticmethod
     def getService():
-        obj = Rds.getRds()
-        return obj.pubsub()
+        rds = Rds.getRds()
+        return rds.pubsub()
