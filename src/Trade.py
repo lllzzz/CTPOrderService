@@ -10,6 +10,7 @@ from Rds import Rds
 from DB import DB
 
 from OrderRealOpen import OrderRealOpen
+from OrderIOCClose import OrderIOCClose
 
 class Trade():
     """交易逻辑"""
@@ -49,6 +50,8 @@ class Trade():
 
     def __initVol(self, iid):
         self.rds.set('TRADING_NUM_' + self.appKey + '_' + iid, 0)
+        self.rds.set('BUY_VOL_' + self.appKey + '_' + iid, 0)
+        self.rds.set('SELL_VOL_' + self.appKey + '_' + iid, 0)
 
 
     def process(self, channel, data):

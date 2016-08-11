@@ -13,13 +13,23 @@ rds = Rds.getLocal()
 appKey = '100'
 ch = C.get('channel', 'service') + appKey
 
-sendData = {
-    'type': 1,
-    'price': 100,
-    'iid': 'ni1609',
-    'total': 2,
-    'isBuy': 1,
-}
+orderType = sys.argv[1]
+sendData = {}
+if orderType == 'RealOpen':
+    sendData = {
+        'type': 1,
+        'price': 100,
+        'iid': 'ni1609',
+        'total': 3,
+        'isBuy': 1,
+    }
+elif orderType == 'IOCClose':
+    sendData = {
+        'type': 3,
+        'iid': 'ni1609',
+        'total': 2,
+        'isBuy': 0,
+    }
 
 rds.publish(ch, JSON.encode(sendData))
 

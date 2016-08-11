@@ -20,13 +20,36 @@ for msg in srv.listen():
         data = msg['data']
         data = JSON.decode(data)
         print data
-        rspData = {
-            'type': 'traded',
-            'iid': data['iid'],
-            'orderID': data['orderID'],
-            'realPrice': data['price'],
-            'successVol': data['total'],
-        }
-        rds.publish(rspCh, JSON.encode(rspData))
+        act = data['action']
+        if act == 'trade':
+            type = data['type']
+            if type == 1: # FAK     
+                rspData = {
+                    'type': 'traded',
+                    'iid': data['iid'],
+                    'orderID': data['orderID'],
+                    'realPrice': data['price'],
+                    'successVol': 2,
+                }
+                rds.publish(rspCh, JSON.encode(rspData))
+                rspData = {
+                    'type': 'canceled',
+                    'iid': data['iid'],
+                    'orderID': data['orderID'],
+                    'realPrice': data['price'],
+                    'cancelVol': data['total'] - 2,
+                }
+                rds.publish(rspCh, JSON.encode(rspData))
+
+            elif type == 2: # IOC
+                rspData = {
+                    'type': 'traded',
+                    'iid': data['iid'],
+                    'orderID': data['orderID'],
+                    'realPrice': data['price'],
+                    'successVol': data['total'],
+                }
+                rds.publish(rspCh, JSON.encode(rspData))
+        
 
 

@@ -40,17 +40,17 @@ class Base(threading.Thread):
         self.orderID = self.localRds.incr('ORDER_ID_' + appKey)
 
 
-    def buyVol(self, iid, vol):
-        if vol > 0:
-            self.rds.incrby('BUY_VOL_' + self.appKey + '_' + iid, vol)
+    def buyVol(self, iid, vol, isRaise = True):
+        if isRaise:
+            self.rds.incr('BUY_VOL_' + self.appKey + '_' + iid, vol)
         else:
-            self.rds.decrby('BUY_VOL_' + self.appKey + '_' + iid, vol)
+            self.rds.decr('BUY_VOL_' + self.appKey + '_' + iid, vol)
 
-    def sellVol(self, iid, vol):
-        if vol > 0:
-            self.rds.incrby('SELL_VOL_' + self.appKey + '_' + iid, vol)
+    def sellVol(self, iid, vol, isRaise = True):
+        if isRaise:
+            self.rds.incr('SELL_VOL_' + self.appKey + '_' + iid, vol)
         else:
-            self.rds.decrby('SELL_VOL_' + self.appKey + '_' + iid, vol)
+            self.rds.decr('SELL_VOL_' + self.appKey + '_' + iid, vol)
 
 
     def startOrder(self, iid):

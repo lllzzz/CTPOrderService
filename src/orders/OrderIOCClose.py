@@ -7,8 +7,8 @@ from Base import Base
 import demjson as JSON
 from Logger import Logger
 
-class OrderRealOpen(Base):
-    """实时开仓单：直接下FAK单"""
+class OrderIOCClose(Base):
+    """IOC强平单"""
     def __init__(self, appKey, req):
         Base.__init__(self, appKey, req)
 
@@ -19,7 +19,7 @@ class OrderRealOpen(Base):
     def process(self, channel, data):
         if self.orderID != data['orderID']: return
         data['volWaiting'] = self.total
-        self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderRealOpen[process]', data)
+        self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderIOCClose[process]', data)
 
         isOver = False
         type = data['type']
@@ -27,17 +27,11 @@ class OrderRealOpen(Base):
             vol = data['successVol']
             # 更新持仓
             if self.isBuy:
-                self.buyVol(self.iid, vol, True)
+                self.sellVol(self.iid, vol, False)
             else:
-                self.sellVol(self.iid, vol, True)
+                self.buyVol(self.iid, vol, False)
 
             # 判断是否结束
-            self.total -= vol
-            if self.total == 0:
-                isOver = True
-
-        elif type == 'canceled':
-            vol = data['cancelVol']
             self.total -= vol
             if self.total == 0:
                 isOver = True
@@ -49,7 +43,6 @@ class OrderRealOpen(Base):
     def __sendOrder(self):
 
         self.iid   = self.req['iid']
-        self.price = self.req['price']
         self.isBuy = self.req['isBuy']
         self.total = self.req['total']
 
@@ -58,12 +51,12 @@ class OrderRealOpen(Base):
             'appKey': int(self.appKey),
             'orderID': int(self.orderID),
             'iid': self.iid,
-            'type': self.ORDER_TYPE_FAK,
-            'price': int(self.price),
+            'type': self.ORDER_TYPE_IOC,
+            'price': 0,
             'total': int(self.total),
             'isBuy': int(self.isBuy),
-            'isOpen': 1,
+            'isOpen': 0,
         }
         self.startOrder(self.iid)
         self.sender.publish(self.reqCh, JSON.encode(sendData))
-        self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderRealOpen[sendOrder]', sendData)
+        self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderIOCClose[sendOrder]', sendData)
