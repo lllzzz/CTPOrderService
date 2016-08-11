@@ -35,50 +35,29 @@ class Trade():
 
         self.db = DB()
         self.localRds = Rds.getLocal()
+        self.rds = Rds.getRds()
 
+        self.iids = []
         # 初始化
-        self.__initDB()
         self.__initOrderID()
 
-
-    def __initDB(self):
-        sql = '''
-            CREATE TABLE IF NOT EXISTS `order` (
-                `id` int(11) NOT NULL AUTO_INCREMENT,
-                `appKey` varchar(50) NOT NULL DEFAULT '',
-                `order_id` int(11) NOT NULL DEFAULT '0',
-                `iid` varchar(50) NOT NULL DEFAULT '',
-                `price` decimal(10,2) NOT NULL DEFAULT '0.00',
-                `real_mean_price` decimal(10,2) NOT NULL DEFAULT '0.00',
-                `total` int(11) NOT NULL DEFAULT 0,
-                `real_total` int(11) NOT NULL DEFAULT 0,
-                `is_buy` int(1) NOT NULL DEFAULT '-1',
-                `is_open` int(11) NOT NULL DEFAULT '-1',
-                `srv_first_time` datetime NOT NULL COMMENT '服务器返回时间',
-                `srv_end_time` datetime NOT NULL COMMENT '服务器返回时间',
-                `local_start_time` datetime NOT NULL COMMENT '发出交易指令时间',
-                `local_start_usec` int(11) NOT NULL DEFAULT '0',
-                `local_first_time` datetime NOT NULL COMMENT '发出交易指令时间',
-                `local_first_usec` int(11) NOT NULL DEFAULT '0',
-                `local_end_time` datetime NOT NULL COMMENT '发出交易指令时间',
-                `local_end_usec` int(11) NOT NULL DEFAULT '0',
-                `type` int(11) NOT NULL DEFAULT '0',
-                `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`id`),
-                KEY `idx_key_oid` (`appKey`,`order_id`)
-            ) ENGINE=InnoDB CHARSET=utf8;'''
-        self.db.insert(sql)
-
-
     def __initOrderID(self):
-        sql = '''SELECT COALESCE(MAX(`order_id`), 0) AS 'maxOrderID' FROM `order` WHERE `appKey` = '%s' ''' % (self.appKey)
+        sql = '''SELECT COALESCE(MAX(`order_id`), 0) AS 'maxOrderID' FROM `order_log` WHERE `appKey` = '%s' ''' % (self.appKey)
         hasData, res = self.db.getOne(sql)
         maxOrderID = res[0]
         self.localRds.set('ORDER_ID_' + self.appKey, str(maxOrderID))
 
+    def __initVol(self, iid):
+        self.rds.set('TRADING_NUM_' + self.appKey + '_' + iid, 0)
+
 
     def process(self, channel, data):
         type = data['type']
+        iid = data['iid']
+        if self.iids.count(iid) == 0:
+            self.iids.append(iid)
+            self.__initVol(iid)
+
         if type == self.ORDER_TYPE_FORECAST:
             order = OrderForecast(self.appKey, data)
             order.start()

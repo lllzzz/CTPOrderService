@@ -25,6 +25,7 @@ for msg in srv.listen():
             'iid': data['iid'],
             'orderID': data['orderID'],
             'realPrice': data['price'],
+            'successVol': data['total'],
         }
         rds.publish(rspCh, JSON.encode(rspData))
 

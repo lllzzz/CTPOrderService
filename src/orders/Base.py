@@ -8,6 +8,7 @@ from Logger import Logger
 from Service import Service
 from Rds import Rds
 from C import C
+import demjson as JSON
 
 
 class Base(threading.Thread):
@@ -39,6 +40,22 @@ class Base(threading.Thread):
         self.orderID = self.localRds.incr('ORDER_ID_' + appKey)
 
 
+    def buyVol(self, iid, vol):
+        if vol > 0:
+            self.rds.incrby('BUY_VOL_' + self.appKey + '_' + iid, vol)
+        else:
+            self.rds.decrby('BUY_VOL_' + self.appKey + '_' + iid, vol)
+
+    def sellVol(self, iid, vol):
+        if vol > 0:
+            self.rds.incrby('SELL_VOL_' + self.appKey + '_' + iid, vol)
+        else:
+            self.rds.decrby('SELL_VOL_' + self.appKey + '_' + iid, vol)
 
 
+    def startOrder(self, iid):
+        self.rds.incr('TRADING_NUM_' + self.appKey + '_' + iid)
+
+    def endOrder(self, iid):
+        self.rds.decr('TRADING_NUM_' + self.appKey + '_' + iid)
 
