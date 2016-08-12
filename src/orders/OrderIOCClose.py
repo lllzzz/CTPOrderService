@@ -38,13 +38,18 @@ class OrderIOCClose(Base):
 
         if isOver:
             self.endOrder(self.iid)
+            self.toDB()
             self.service.stop()
 
     def __sendOrder(self):
 
         self.iid   = self.req['iid']
+        self.price = 0
         self.isBuy = self.req['isBuy']
+        self.isOpen = 0
         self.total = self.req['total']
+        self.totalOri = self.total
+        self.type = 3
 
         sendData = {
             'action': 'trade',

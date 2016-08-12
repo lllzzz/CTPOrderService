@@ -40,6 +40,7 @@ class Trade():
 
         self.iids = []
         # 初始化
+        self.__initDB()
         self.__initOrderID()
 
     def __initOrderID(self):
@@ -74,4 +75,31 @@ class Trade():
             order = OrderIOCClose(self.appKey, data)
             order.start()
 
-
+    def __initDB(self):
+        sql = '''
+            CREATE TABLE IF NOT EXISTS `order` (
+                `id` int(11) NOT NULL AUTO_INCREMENT,
+                `appKey` varchar(50) NOT NULL DEFAULT '',
+                `iid` varchar(50) NOT NULL DEFAULT '',
+                `order_id` int(11) NOT NULL DEFAULT '0',
+                `type` int(11) NOT NULL DEFAULT '0',
+                `price` decimal(10,2) NOT NULL DEFAULT '0.00',
+                `price_mean` decimal(10,2) NOT NULL DEFAULT '0.00',
+                `total` int(11) NOT NULL DEFAULT 0,
+                `total_success` int(11) NOT NULL DEFAULT 0,
+                `total_cancel` int(11) NOT NULL DEFAULT 0,
+                `is_buy` int(1) NOT NULL DEFAULT '-1',
+                `is_open` int(11) NOT NULL DEFAULT '-1',
+                `srv_first_time` datetime NOT NULL COMMENT '服务器返回时间',
+                `srv_end_time` datetime NOT NULL COMMENT '服务器返回时间',
+                `local_start_time` datetime NOT NULL COMMENT '发出交易指令时间',
+                `local_start_usec` int(11) NOT NULL DEFAULT '0',
+                `local_first_time` datetime NOT NULL COMMENT '发出交易指令时间',
+                `local_first_usec` int(11) NOT NULL DEFAULT '0',
+                `local_end_time` datetime NOT NULL COMMENT '发出交易指令时间',
+                `local_end_usec` int(11) NOT NULL DEFAULT '0',
+                `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                KEY `idx_front_session_ref` (`front_id`,`session_id`,`order_ref`)
+            ) ENGINE=InnoDB CHARSET=utf8;'''
+        self._db.insert(sql)

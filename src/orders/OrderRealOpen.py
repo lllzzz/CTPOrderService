@@ -44,6 +44,7 @@ class OrderRealOpen(Base):
 
         if isOver:
             self.endOrder(self.iid)
+            self.toDB()
             self.service.stop()
 
     def __sendOrder(self):
@@ -51,7 +52,10 @@ class OrderRealOpen(Base):
         self.iid   = self.req['iid']
         self.price = self.req['price']
         self.isBuy = self.req['isBuy']
+        self.isOpen = 1
         self.total = self.req['total']
+        self.totalOri = self.total
+        self.type = 1
 
         sendData = {
             'action': 'trade',

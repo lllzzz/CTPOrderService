@@ -9,6 +9,7 @@ from Service import Service
 from Rds import Rds
 from C import C
 import demjson as JSON
+from DB import DB
 
 
 class Base(threading.Thread):
@@ -59,3 +60,11 @@ class Base(threading.Thread):
     def endOrder(self, iid):
         self.rds.decr('TRADING_NUM_' + self.appKey + '_' + iid)
 
+    def toDB(self):
+        db = DB()
+        sql = '''
+            INSERT INTO `order` (`appKey`, `iid`, `order_id`, `type`, `price`, `total`, `is_buy`, `is_open`)
+            VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ''' % (self.appKey, self.iid, self.orderID,
+            self.type, self.price, self.totalOri, self.isBuy, self.isOpen)
+
+        db.insert(sql)
