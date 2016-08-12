@@ -99,7 +99,7 @@ class Trade():
                 `local_end_time` datetime NOT NULL COMMENT '发出交易指令时间',
                 `local_end_usec` int(11) NOT NULL DEFAULT '0',
                 `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`id`),
-                KEY `idx_front_session_ref` (`front_id`,`session_id`,`order_ref`)
+                PRIMARY KEY (`id`)
             ) ENGINE=InnoDB CHARSET=utf8;'''
-        self._db.insert(sql)
+        db = DB()
+        db.insert(sql)
