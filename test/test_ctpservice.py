@@ -23,23 +23,41 @@ for msg in srv.listen():
         act = data['action']
         if act == 'trade':
             type = data['type']
-            if type == 1: # FAK     
-                rspData = {
-                    'type': 'traded',
-                    'iid': data['iid'],
-                    'orderID': data['orderID'],
-                    'realPrice': data['price'],
-                    'successVol': 2,
-                }
-                rds.publish(rspCh, JSON.encode(rspData))
-                rspData = {
-                    'type': 'canceled',
-                    'iid': data['iid'],
-                    'orderID': data['orderID'],
-                    'realPrice': data['price'],
-                    'cancelVol': data['total'] - 2,
-                }
-                rds.publish(rspCh, JSON.encode(rspData))
+            if type == 1: # FAK
+                if data['isOpen']: # FAK开仓测试，下单5手，成4撤1
+                    rspData = {
+                        'type': 'traded',
+                        'iid': data['iid'],
+                        'orderID': data['orderID'],
+                        'realPrice': data['price'],
+                        'successVol': data['total'] - 1,
+                    }
+                    rds.publish(rspCh, JSON.encode(rspData))
+                    rspData = {
+                        'type': 'canceled',
+                        'iid': data['iid'],
+                        'orderID': data['orderID'],
+                        'price': data['price'],
+                        'cancelVol': 1,
+                    }
+                    rds.publish(rspCh, JSON.encode(rspData))
+                else: # FAK平仓测试，成1
+                    rspData = {
+                        'type': 'traded',
+                        'iid': data['iid'],
+                        'orderID': data['orderID'],
+                        'realPrice': data['price'],
+                        'successVol': 1,
+                    }
+                    rds.publish(rspCh, JSON.encode(rspData))
+                    rspData = {
+                        'type': 'canceled',
+                        'iid': data['iid'],
+                        'orderID': data['orderID'],
+                        'price': data['price'],
+                        'cancelVol': data['total'] - 1,
+                    }
+                    rds.publish(rspCh, JSON.encode(rspData))
 
             elif type == 2: # IOC
                 rspData = {
@@ -50,6 +68,7 @@ for msg in srv.listen():
                     'successVol': data['total'],
                 }
                 rds.publish(rspCh, JSON.encode(rspData))
-        
+
+
 
 

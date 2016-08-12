@@ -1,6 +1,7 @@
 [sys]
 env = dev
 appKey = 100
+close_trytimes = 3
 
 [redis_dev]
 host = 127.0.0.1

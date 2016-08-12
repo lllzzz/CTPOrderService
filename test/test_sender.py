@@ -20,7 +20,7 @@ if orderType == 'RealOpen':
         'type': 1,
         'price': 100,
         'iid': 'ni1609',
-        'total': 3,
+        'total': 7,
         'isBuy': 1,
     }
 elif orderType == 'IOCClose':
@@ -30,6 +30,13 @@ elif orderType == 'IOCClose':
         'total': 2,
         'isBuy': 0,
     }
-
+elif orderType == 'RealClose':
+    sendData = {
+        'type': 2,
+        'iid': 'ni1609',
+        'total': 4,
+        'isBuy': 0,
+        'price': 100,
+    }
 rds.publish(ch, JSON.encode(sendData))
 

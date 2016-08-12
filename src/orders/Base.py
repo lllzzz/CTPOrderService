@@ -37,8 +37,13 @@ class Base(threading.Thread):
 
         self.rspCh = C.get('channel', 'service_rsp') + appKey
         self.reqCh = C.get('channel', 'trade')
+        self.orderIDs = []
+        self.orderID = 0
 
-        self.orderID = self.localRds.incr('ORDER_ID_' + appKey)
+    def getOrderID(self):
+        self.orderID = self.localRds.incr('ORDER_ID_' + self.appKey)
+        self.orderIDs.append(str(self.orderID))
+        return self.orderID
 
 
     def buyVol(self, iid, vol, isRaise = True):
@@ -63,8 +68,8 @@ class Base(threading.Thread):
     def toDB(self):
         db = DB()
         sql = '''
-            INSERT INTO `order` (`appKey`, `iid`, `order_id`, `type`, `price`, `total`, `is_buy`, `is_open`)
-            VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ''' % (self.appKey, self.iid, self.orderID,
+            INSERT INTO `order` (`appKey`, `iid`, `order_ids`, `type`, `price`, `total`, `is_buy`, `is_open`)
+            VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ''' % (self.appKey, self.iid, ','.join(self.orderIDs),
             self.type, self.price, self.totalOri, self.isBuy, self.isOpen)
 
         db.insert(sql)

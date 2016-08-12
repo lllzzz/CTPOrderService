@@ -56,11 +56,12 @@ class OrderRealOpen(Base):
         self.total = self.req['total']
         self.totalOri = self.total
         self.type = 1
+        orderID = self.getOrderID()
 
         sendData = {
             'action': 'trade',
             'appKey': int(self.appKey),
-            'orderID': int(self.orderID),
+            'orderID': int(orderID),
             'iid': self.iid,
             'type': self.ORDER_TYPE_FAK,
             'price': int(self.price),

@@ -11,6 +11,7 @@ from DB import DB
 
 from OrderRealOpen import OrderRealOpen
 from OrderIOCClose import OrderIOCClose
+from OrderRealClose import OrderRealClose
 
 class Trade():
     """交易逻辑"""
@@ -81,7 +82,7 @@ class Trade():
                 `id` int(11) NOT NULL AUTO_INCREMENT,
                 `appKey` varchar(50) NOT NULL DEFAULT '',
                 `iid` varchar(50) NOT NULL DEFAULT '',
-                `order_id` int(11) NOT NULL DEFAULT '0',
+                `order_ids` varchar(500) NOT NULL DEFAULT '',
                 `type` int(11) NOT NULL DEFAULT '0',
                 `price` decimal(10,2) NOT NULL DEFAULT '0.00',
                 `price_mean` decimal(10,2) NOT NULL DEFAULT '0.00',
