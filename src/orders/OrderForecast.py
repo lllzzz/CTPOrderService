@@ -8,8 +8,8 @@ import demjson as JSON
 from Logger import Logger
 from C import C
 
-class OrderForecastOpen(Base):
-    """预测开仓单，当tick达到cancelLine时检查"""
+class OrderForecast(Base):
+    """预测开仓单，当tick达到下单价时检查是否撤单"""
     def __init__(self, appKey, req):
         Base.__init__(self, appKey, req)
         self.tickCh = C.get('channel', 'tick') + req['iid']
@@ -28,15 +28,15 @@ class OrderForecastOpen(Base):
                 if abs(self.price - data['price']) > self.cancelRange * self.minTick:
                     self.__cancel(self.total)
             else:
-                if data['price'] > self.price or data['price'] < self.price:
+                if (not self.isBuy and data['price'] > self.price) or (self.isBuy and data['price'] < self.price):
                     self.startCheckCancel = True
-                    self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecastOpen[tick]', data)
+                    self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecast[tick]', data)
             return
 
         if channel == self.selfCh:
             if self.orderID != data['orderID']: return
             data['volWaiting'] = self.total
-            self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecastOpen[process]', data)
+            self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecast[process]', data)
 
             isOver = False
             type = data['type']
@@ -77,7 +77,7 @@ class OrderForecastOpen(Base):
         self.iid   = self.req['iid']
         self.price = self.req['price']
         self.isBuy = self.req['isBuy']
-        self.isOpen = 1
+        self.isOpen = self.req['isOpen']
         self.total = self.req['total']
         self.totalOri = self.total
         self.type = 0
@@ -94,10 +94,10 @@ class OrderForecastOpen(Base):
             'price': int(self.price),
             'total': int(self.total),
             'isBuy': int(self.isBuy),
-            'isOpen': self.isOpen,
+            'isOpen': int(self.isOpen),
         }
         self.sender.publish(self.reqCh, JSON.encode(sendData))
-        self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecastOpen[sendOrder]', sendData)
+        self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecast[sendOrder]', sendData)
 
 
     def __cancel(self, total):
@@ -107,4 +107,4 @@ class OrderForecastOpen(Base):
             'orderID': int(self.orderID),
         }
         self.sender.publish(self.reqCh, JSON.encode(sendData))
-        self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecastOpen[cancel]', sendData)
+        self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecast[cancel]', sendData)

@@ -40,19 +40,20 @@ elif orderType == 'RealClose':
         'price': 100,
     }
 
-elif orderType == 'ForecastOpen':
+elif orderType == 'Forecast':
     sendData = {
         'type': 0,
         'iid': 'ni1609',
         'total': 3,
         'isBuy': 1,
+        'isOpen': 1,
         'price': 100,
         'fid': 1,
         'cancelRange': 2,
     }
 rds.publish(ch, JSON.encode(sendData))
 
-if orderType == 'ForcastOpen':
+if orderType == 'Forecast':
     srv = rds.pubsub()
     srv.subscribe(ch2listen)
     for msg in srv.listen():
