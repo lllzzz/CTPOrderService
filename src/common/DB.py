@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding:utf-8 -*-
 import MySQLdb
+import MySQLdb.cursors
 from C import C
 
 class DB():
@@ -20,7 +21,8 @@ class DB():
             user = user,
             passwd = passwd,
             db = name,
-            charset='utf8')
+            charset='utf8',
+            cursorclass = MySQLdb.cursors.DictCursor)
         self.cursor = self.db.cursor()
 
     def getAll(self, sql):

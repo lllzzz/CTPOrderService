@@ -54,7 +54,7 @@ class Trade():
     def __initOrderID(self):
         sql = '''SELECT COALESCE(MAX(`order_id`), 0) AS 'maxOrderID' FROM `order_log` WHERE `appKey` = '%s' ''' % (self.appKey)
         hasData, res = self.db.getOne(sql)
-        maxOrderID = res[0]
+        maxOrderID = res['maxOrderID']
         self.localRds.set('ORDER_ID_' + self.appKey, str(maxOrderID))
 
     def __initVol(self, iid):
@@ -101,6 +101,7 @@ class Trade():
                 `total_cancel` int(11) NOT NULL DEFAULT 0,
                 `is_buy` int(1) NOT NULL DEFAULT '-1',
                 `is_open` int(11) NOT NULL DEFAULT '-1',
+                `status` int(11) NOT NULL DEFAULT 0,
                 `srv_first_time` datetime NOT NULL COMMENT '服务器返回时间',
                 `srv_end_time` datetime NOT NULL COMMENT '服务器返回时间',
                 `local_start_time` datetime NOT NULL COMMENT '发出交易指令时间',
