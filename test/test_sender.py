@@ -51,6 +51,23 @@ elif orderType == 'Forecast':
         'fid': 1,
         'cancelRange': 2,
     }
+
+elif orderType == 'custom':
+    typeConf = {
+        'realopen': 1, 'ioc': 3, 'realclose': 2, 'forecast': 0
+    }
+    sendData = {
+        'type': typeConf[sys.argv[2]],
+        'iid': 'ni1609',
+        'total': int(sys.argv[3]),
+        'isBuy': int(sys.argv[4]),
+        'isOpen': int(sys.argv[5]),
+        'price': int(sys.argv[6]),
+        'fid': 1,
+        'cancelRange': 2,
+    }
+    if sys.argv[2] == 'forecast': orderType = 'Forecast'
+
 rds.publish(ch, JSON.encode(sendData))
 
 if orderType == 'Forecast':
