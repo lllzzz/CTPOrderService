@@ -29,7 +29,8 @@ class Base(threading.Thread):
         self.logger = Logger()
 
         srvChannel = C.get('channel', 'trade_rsp') + appKey
-        self.service = Service(appKey, [srvChannel], self.process)
+        tickChannel = C.get('channel', 'tick') + req['iid']
+        self.service = Service(appKey, [srvChannel, tickChannel], self.process)
 
         self.sender = Rds.getSender()
         self.rds = Rds.getRds()

@@ -11,12 +11,15 @@ class OrderRealOpen(Base):
     """实时开仓单：直接下FAK单"""
     def __init__(self, appKey, req):
         Base.__init__(self, appKey, req)
+        self.selfCh = C.get('channel', 'trade_rsp') + appKey
+
 
     def run(self):
         self.__sendOrder()
         self.service.run()
 
     def process(self, channel, data):
+        if channel != self.selfCh: return
         if self.orderID != data['orderID']: return
         data['volWaiting'] = self.total
         self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderRealOpen[process]', data)

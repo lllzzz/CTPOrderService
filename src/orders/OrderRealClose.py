@@ -12,13 +12,15 @@ class OrderRealClose(Base):
     """实时平仓单"""
     def __init__(self, appKey, req):
         Base.__init__(self, appKey, req)
+        self.selfCh = C.get('channel', 'trade_rsp') + appKey
+
 
     def run(self):
         self.__sendOrder()
         self.service.run()
 
     def process(self, channel, data):
-
+        if channel != self.selfCh: return
         if self.orderID != data['orderID']: return
 
         data['volWaiting'] = self.total

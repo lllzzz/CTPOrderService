@@ -12,6 +12,7 @@ rds = Rds.getLocal()
 
 appKey = '100'
 ch = C.get('channel', 'service') + appKey
+ch2listen = C.get('channel', 'service_rsp') + appKey
 
 orderType = sys.argv[1]
 sendData = {}
@@ -38,5 +39,23 @@ elif orderType == 'RealClose':
         'isBuy': 0,
         'price': 100,
     }
+
+elif orderType == 'ForecastOpen':
+    sendData = {
+        'type': 0,
+        'iid': 'ni1609',
+        'total': 3,
+        'isBuy': 1,
+        'price': 100,
+        'fid': 1,
+        'cancelRange': 2,
+    }
 rds.publish(ch, JSON.encode(sendData))
+
+if orderType == 'ForcastOpen':
+    srv = rds.pubsub()
+    srv.subscribe(ch2listen)
+    for msg in srv.listen():
+        if msg['type'] == 'message':
+            print msg['data']
 

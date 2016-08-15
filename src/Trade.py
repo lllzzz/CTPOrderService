@@ -12,13 +12,17 @@ from DB import DB
 from OrderRealOpen import OrderRealOpen
 from OrderIOCClose import OrderIOCClose
 from OrderRealClose import OrderRealClose
+from OrderForecastOpen import OrderForecastOpen
 
 class Trade():
     """交易逻辑"""
 
     # 预测单
     # 定义：提前下单，等待成交或者撤单信号，对于多手，成交一次以后撤掉剩下全部订单
-    ORDER_TYPE_FORECAST = 0
+    ORDER_TYPE_FORECAST_OPEN = 0
+    ORDER_TYPE_FORECAST_CLOSE = 6
+    # 定义：预测平开单
+    ORDER_TYPE_FORECAST_CLOSEOPEN = 5
 
     # 实时单
     # 定义：实时下单开仓，下FAK单
@@ -29,6 +33,10 @@ class Trade():
     # 强平单
     # 定义：下IOC单
     ORDER_TYPE_IOC_CLOSE = 3
+
+    # 平开类型单
+    # 定义：实时平开单
+    ORDER_TYPE_REAL_CLOSEOPEN = 4
 
 
     def __init__(self, appKey):
@@ -63,8 +71,8 @@ class Trade():
             self.iids.append(iid)
             self.__initVol(iid)
 
-        if type == self.ORDER_TYPE_FORECAST:
-            order = OrderForecast(self.appKey, data)
+        if type == self.ORDER_TYPE_FORECAST_OPEN:
+            order = OrderForecastOpen(self.appKey, data)
             order.start()
         elif type == self.ORDER_TYPE_REAL_OPEN:
             order = OrderRealOpen(self.appKey, data)

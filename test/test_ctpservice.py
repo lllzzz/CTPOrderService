@@ -7,6 +7,7 @@ sys.path.append('../src/common')
 from Rds import Rds
 from C import C
 import demjson as JSON
+import time
 
 rds = Rds.getLocal()
 srv = rds.pubsub()
@@ -68,6 +69,34 @@ for msg in srv.listen():
                     'successVol': data['total'],
                 }
                 rds.publish(rspCh, JSON.encode(rspData))
+
+            elif type == 0: # NORMAL
+                # # case1 直接分批返回
+                # time.sleep(1)
+                # for i in range(data['total']):
+                #     time.sleep(1)
+                #     rspData = {
+                #         'type': 'traded',
+                #         'iid': data['iid'],
+                #         'orderID': data['orderID'],
+                #         'realPrice': data['price'],
+                #         'successVol': 1,
+                #     }
+                #     rds.publish(rspCh, JSON.encode(rspData))
+                # # case1 end
+
+                # case2 不做处理，等待撤单
+                # case2 end
+                pass
+
+        elif act == 'cancel':
+            rspData = {
+                'type': 'canceled',
+                'orderID': data['orderID'],
+                'cancelVol': 3,
+            }
+            rds.publish(rspCh, JSON.encode(rspData))
+
 
 
 
