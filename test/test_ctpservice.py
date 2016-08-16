@@ -33,6 +33,7 @@ for msg in srv.listen():
                         'realPrice': data['price'],
                         'successVol': data['total'] - 1,
                     }
+                    rspData = {'data': rspData}
                     rds.publish(rspCh, JSON.encode(rspData))
                     rspData = {
                         'type': 'canceled',
@@ -41,6 +42,7 @@ for msg in srv.listen():
                         'price': data['price'],
                         'cancelVol': 1,
                     }
+                    rspData = {'data': rspData}
                     rds.publish(rspCh, JSON.encode(rspData))
                 else: # FAK平仓测试，成1
                     rspData = {
@@ -50,6 +52,7 @@ for msg in srv.listen():
                         'realPrice': data['price'],
                         'successVol': 1,
                     }
+                    rspData = {'data': rspData}
                     rds.publish(rspCh, JSON.encode(rspData))
                     rspData = {
                         'type': 'canceled',
@@ -58,6 +61,7 @@ for msg in srv.listen():
                         'price': data['price'],
                         'cancelVol': data['total'] - 1,
                     }
+                    rspData = {'data': rspData}
                     rds.publish(rspCh, JSON.encode(rspData))
 
             elif type == 2: # IOC
@@ -68,6 +72,7 @@ for msg in srv.listen():
                     'realPrice': data['price'],
                     'successVol': data['total'],
                 }
+                rspData = {'data': rspData}
                 rds.publish(rspCh, JSON.encode(rspData))
 
             elif type == 0: # NORMAL
@@ -82,6 +87,7 @@ for msg in srv.listen():
                 #         'realPrice': data['price'],
                 #         'successVol': 1,
                 #     }
+                #     rspData = {'data': rspData}
                 #     rds.publish(rspCh, JSON.encode(rspData))
                 # # case1 end
 
@@ -95,6 +101,7 @@ for msg in srv.listen():
                 'orderID': data['orderID'],
                 'cancelVol': 3,
             }
+            rspData = {'data': rspData}
             rds.publish(rspCh, JSON.encode(rspData))
 
 

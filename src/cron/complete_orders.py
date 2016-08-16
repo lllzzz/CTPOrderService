@@ -53,7 +53,7 @@ if total > 0:
             let = last['local_time']
             leu = last['local_usec']
 
-            priceMean = priceMean / totalSuccess
+            priceMean = priceMean / totalSuccess if totalSuccess > 0 else 0
 
             sql = ''' UPDATE `order` SET `price_mean` = '%s', `total_success` = '%s', `total_cancel` = '%s', status = 1, `srv_first_time` = '%s',
                 `srv_end_time` = '%s', `local_start_time` = '%s', `local_start_usec` = '%s', `local_first_time` = '%s', `local_first_usec` = '%s',
