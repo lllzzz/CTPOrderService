@@ -6,6 +6,7 @@ sys.path.append('../common')
 from Base import Base
 import demjson as JSON
 from Logger import Logger
+from C import C
 
 class OrderIOCClose(Base):
     """IOC强平单"""
@@ -19,6 +20,7 @@ class OrderIOCClose(Base):
 
     def process(self, channel, data):
         if channel != self.selfCh: return
+        data = data['data']
         if self.orderID != data['orderID']: return
         data['volWaiting'] = self.total
         self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderIOCClose[process]', data)

@@ -76,4 +76,5 @@ if orderType == 'Forecast':
     for msg in srv.listen():
         if msg['type'] == 'message':
             print msg['data']
+            break
 

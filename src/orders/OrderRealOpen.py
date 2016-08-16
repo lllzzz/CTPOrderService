@@ -6,6 +6,7 @@ sys.path.append('../common')
 from Base import Base
 import demjson as JSON
 from Logger import Logger
+from C import C
 
 class OrderRealOpen(Base):
     """实时开仓单：直接下FAK单"""
@@ -20,6 +21,7 @@ class OrderRealOpen(Base):
 
     def process(self, channel, data):
         if channel != self.selfCh: return
+        data = data['data']
         if self.orderID != data['orderID']: return
         data['volWaiting'] = self.total
         self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderRealOpen[process]', data)

@@ -21,6 +21,7 @@ class OrderRealClose(Base):
 
     def process(self, channel, data):
         if channel != self.selfCh: return
+        data = data['data']
         if self.orderID != data['orderID']: return
 
         data['volWaiting'] = self.total

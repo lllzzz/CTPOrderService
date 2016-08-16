@@ -34,6 +34,7 @@ class OrderForecast(Base):
             return
 
         if channel == self.selfCh:
+            data = data['data']
             if self.orderID != data['orderID']: return
             data['volWaiting'] = self.total
             self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecast[process]', data)
