@@ -9,12 +9,13 @@ from Rds import Rds
 from C import C
 
 if len(sys.argv) == 1:
-    print '''启动/停止系统：./tradeService start/stop
+    print '''启动/停止系统：./tradeService start/stop appKey
 查看状态：./tradeService status'''
     sys.exit()
 
 cmd = sys.argv[1]
-appKey = C.get('sys', 'appKey')
+if cmd != 'status':
+    appKey = sys.argv[2]
 
 if cmd == 'start':
     os.system('python ../src/main.py ' + appKey + ' &')
@@ -23,4 +24,4 @@ elif cmd == 'stop':
     ch = C.get('channel', 'service') + appKey
     rds.publish(ch, 'stop')
 elif cmd == 'status':
-    os.system('./find.sh ' + appKey)
+    os.system('./find.sh')

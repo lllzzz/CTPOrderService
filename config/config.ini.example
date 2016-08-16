@@ -1,6 +1,5 @@
 [sys]
 env = dev
-appKey = 100
 close_trytimes = 3
 
 [redis_dev]

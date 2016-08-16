@@ -73,7 +73,7 @@ class OrderForecast(Base):
 
         self.fid   = self.req['fid']
         self.cancelRange = int(self.req['cancelRange'])
-        self.minTick = int(C.get(self.req['iid'], 'min_tick'))
+        self.minTick = int(C.get('min_tick', self.req['iid']))
 
         self.iid   = self.req['iid']
         self.price = self.req['price']

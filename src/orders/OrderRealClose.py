@@ -66,7 +66,7 @@ class OrderRealClose(Base):
         self.totalOri = self.total
         self.type = 2
         self.trytimes = int(C.get('sys', 'close_trytimes'))
-        self.minTick = int(C.get(self.iid, 'min_tick'))
+        self.minTick = int(C.get('min_tick', self.iid))
 
         self.startOrder(self.iid)
         self.__doSend(self.total, self.price)
