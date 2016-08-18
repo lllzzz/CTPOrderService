@@ -12,10 +12,9 @@ class OrderForecast(Base):
     """预测开仓单，当tick达到下单价时检查是否撤单"""
     def __init__(self, appKey, req):
         Base.__init__(self, appKey, req)
-        self.tickCh = C.get('channel', 'tick') + req['iid']
-        self.selfCh = C.get('channel', 'trade_rsp') + appKey
+        self.tickCh = C.get('channel', 'tick') % (req['iid'])
+        self.selfCh = C.get('channel', 'trade_rsp') % (appKey)
         self.startCheckCancel = False
-        self.successVol = 0
 
     def run(self):
         self.__sendOrder()
@@ -64,14 +63,14 @@ class OrderForecast(Base):
 
         if isOver:
             self.endOrder(self.iid)
-            self.sender.publish(self.rspCh, JSON.encode({'fid': self.fid, 'successVol': self.successVol}))
+            self.sender.publish(self.rspCh, JSON.encode({'mid': self.mid, 'successVol': self.successVol}))
             self.toDB()
             self.service.stop()
 
 
     def __sendOrder(self):
 
-        self.fid   = self.req['fid']
+        self.mid   = self.req['mid']
         self.cancelRange = int(self.req['cancelRange'])
         self.minTick = int(C.get('min_tick', self.req['iid']))
 

@@ -21,7 +21,7 @@ if cmd == 'start':
     os.system('python ../src/main.py ' + appKey + ' &')
 elif cmd == 'stop':
     rds = Rds.getSender()
-    ch = C.get('channel', 'service') + appKey
+    ch = C.get('channel', 'service') % (appKey)
     rds.publish(ch, 'stop')
 elif cmd == 'status':
     os.system('./find.sh')

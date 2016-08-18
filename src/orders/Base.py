@@ -28,18 +28,19 @@ class Base(threading.Thread):
 
         self.logger = Logger()
 
-        srvChannel = C.get('channel', 'trade_rsp') + appKey
-        tickChannel = C.get('channel', 'tick') + req['iid']
+        srvChannel = C.get('channel', 'trade_rsp') % (appKey)
+        tickChannel = C.get('channel', 'tick') % (req['iid'])
         self.service = Service(appKey, [srvChannel, tickChannel], self.process)
 
         self.sender = Rds.getSender()
         self.rds = Rds.getRds()
         self.localRds = Rds.getLocal()
 
-        self.rspCh = C.get('channel', 'service_rsp') + appKey
+        self.rspCh = C.get('channel', 'service_rsp') % (appKey)
         self.reqCh = C.get('channel', 'trade')
         self.orderIDs = []
         self.orderID = 0
+        self.successVol = 0
 
     def getOrderID(self):
         self.orderID = self.localRds.incr('ORDER_ID_' + self.appKey)

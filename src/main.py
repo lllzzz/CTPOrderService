@@ -14,7 +14,7 @@ from Trade import Trade
 appKey = sys.argv[1]
 trade = Trade(appKey)
 
-srvChannel = C.get('channel', 'service') + appKey
+srvChannel = C.get('channel', 'service') % (appKey)
 srv = Service(appKey, [srvChannel], trade.process)
 
 srv.run()

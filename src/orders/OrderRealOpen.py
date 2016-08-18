@@ -12,7 +12,7 @@ class OrderRealOpen(Base):
     """实时开仓单：直接下FAK单"""
     def __init__(self, appKey, req):
         Base.__init__(self, appKey, req)
-        self.selfCh = C.get('channel', 'trade_rsp') + appKey
+        self.selfCh = C.get('channel', 'trade_rsp') % (appKey)
 
 
     def run(self):
@@ -30,6 +30,7 @@ class OrderRealOpen(Base):
         type = data['type']
         if type == 'traded':
             vol = data['successVol']
+            self.successVol += vol
             # 更新持仓
             if self.isBuy:
                 self.buyVol(self.iid, vol, True)
@@ -49,11 +50,13 @@ class OrderRealOpen(Base):
 
         if isOver:
             self.endOrder(self.iid)
+            self.sender.publish(self.rspCh, JSON.encode({'mid': self.mid, 'successVol': self.successVol}))
             self.toDB()
             self.service.stop()
 
     def __sendOrder(self):
 
+        self.mid   = self.req['mid']
         self.iid   = self.req['iid']
         self.price = self.req['price']
         self.isBuy = self.req['isBuy']
