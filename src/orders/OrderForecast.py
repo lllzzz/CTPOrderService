@@ -25,7 +25,7 @@ class OrderForecast(Base):
                 if abs(self.price - data[self.checkCancelKey]) > self.cancelRange * self.minTick:
                     self.__cancel(self.total)
             else:
-                if (not self.isBuy and data['price'] >= self.price) or (self.isBuy and data['price'] <= self.price):
+                if data['price'] >= self.cancelPriceH or data['price'] <= self.cancelPriceL:
                     self.startCheckCancel = True
                     self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecast[tick]', data)
             return
@@ -76,6 +76,8 @@ class OrderForecast(Base):
         self.mid   = self.req['mid']
         self.cancelRange = int(self.req['cancelRange'])
         self.minTick = int(C.get('min_tick', self.req['iid']))
+        self.cancelPriceH = int(self.req['cancelPriceH'])
+        self.cancelPriceL = int(self.req['cancelPriceL'])
         self.checkCancelKey = 'price'
 
         self.iid   = self.req['iid']
