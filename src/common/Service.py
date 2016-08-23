@@ -16,7 +16,6 @@ class Service():
 
     def run(self):
         for msg in self.srv.listen():
-            print msg
             if msg['type'] == 'message':
                 data = msg['data']
                 if data == 'stop': # 从外部停止服务

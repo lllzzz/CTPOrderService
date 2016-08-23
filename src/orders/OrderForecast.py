@@ -13,6 +13,7 @@ class OrderForecast(Base):
     def __init__(self, appKey, req):
         Base.__init__(self, appKey, req)
         self.startCheckCancel = False
+        self.isCanceled = False
 
     def run(self):
         self.__sendOrder()
@@ -113,6 +114,8 @@ class OrderForecast(Base):
 
 
     def __cancel(self, total):
+        if self.isCanceled: return
+        self.isCanceled = True
         sendData = {
             'action': 'cancel',
             'appKey': int(self.appKey),
