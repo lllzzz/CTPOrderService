@@ -18,7 +18,7 @@ if cmd != 'status':
     appKey = sys.argv[2]
 
 if cmd == 'start':
-    os.system('python ../src/main.py trade_service ' + appKey + ' &')
+    os.system('python ../src/main.py order_service ' + appKey + ' &')
 elif cmd == 'stop':
     rds = Rds.getSender()
     ch = C.get('channel', 'listen_model') % (appKey)
