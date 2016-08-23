@@ -8,8 +8,7 @@ import demjson as JSON
 
 class Service():
     """服务"""
-    def __init__(self, appKey, channels, callback):
-        self.appKey = appKey
+    def __init__(self, channels, callback):
         self.srv = Rds.getService()
         self.srv.subscribe(channels)
         self.callback = callback
@@ -17,14 +16,15 @@ class Service():
 
     def run(self):
         for msg in self.srv.listen():
+            print msg
             if msg['type'] == 'message':
                 data = msg['data']
-                if (data == 'stop'): break
+                if data == 'stop': # 从外部停止服务
+                    self.stop()
+                    continue
                 dataObj = JSON.decode(data)
                 self.callback(msg['channel'], dataObj)
 
 
     def stop(self):
-        sender = Rds.getSender()
-        for ch in self.chs:
-            sender.publish(ch, 'stop')
+        self.srv.unsubscribe(self.chs)

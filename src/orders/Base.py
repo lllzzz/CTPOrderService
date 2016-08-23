@@ -28,19 +28,21 @@ class Base(threading.Thread):
 
         self.logger = Logger()
 
-        srvChannel = C.get('channel', 'trade_rsp') % (appKey)
-        tickChannel = C.get('channel', 'tick') % (req['iid'])
-        self.service = Service(appKey, [srvChannel, tickChannel], self.process)
+        self.tradeRspCh = C.get('channel', 'listen_trade') % (appKey)
+        self.tickCh = C.get('channel', 'listen_tick') % (req['iid'])
+        self.service = Service([self.tradeRspCh, self.tickCh], self.process)
 
         self.sender = Rds.getSender()
         self.rds = Rds.getRds()
         self.localRds = Rds.getLocal()
 
-        self.rspCh = C.get('channel', 'service_rsp') % (appKey)
-        self.reqCh = C.get('channel', 'trade')
+        self.sendOrderCh = C.get('channel', 'send_order')
+        self.sendOrderRspCh = C.get('channel', 'send_order_rsp') % (appKey)
         self.orderIDs = []
         self.orderID = 0
         self.successVol = 0
+
+        self.logger.write('trade_' + self.appKey, Logger.INFO, 'Base[request]', req)
 
     def getOrderID(self):
         self.orderID = self.localRds.incr('ORDER_ID_' + self.appKey)
@@ -66,6 +68,12 @@ class Base(threading.Thread):
 
     def endOrder(self, iid):
         self.rds.decr('TRADING_NUM_' + self.appKey + '_' + iid)
+
+    def error(self, data):
+        self.endOrder(self.iid)
+        self.sender.publish(self.sendOrderRspCh, JSON.encode({'mid': self.mid, 'successVol': self.successVol}))
+        # self.toDB()
+        self.service.stop()
 
     def toDB(self):
         db = DB()

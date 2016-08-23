@@ -12,7 +12,6 @@ class OrderRealClose(Base):
     """实时平仓单"""
     def __init__(self, appKey, req):
         Base.__init__(self, appKey, req)
-        self.selfCh = C.get('channel', 'trade_rsp') % (appKey)
 
 
     def run(self):
@@ -20,10 +19,14 @@ class OrderRealClose(Base):
         self.service.run()
 
     def process(self, channel, data):
-        if channel != self.selfCh: return
-        data = data['data']
-        if self.orderID != data['orderID']: return
+        if channel != self.tradeRspCh: return
+        if data['err'] > 0:
+            self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderRealClose[error]', data)
+            self.error(data['err'])
+            return
 
+    	data = data['data']
+        if self.orderID != data['orderID']: return
         data['volWaiting'] = self.total
         self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderRealClose[process]', data)
 
@@ -53,7 +56,7 @@ class OrderRealClose(Base):
 
         if isOver:
             self.endOrder(self.iid)
-            self.sender.publish(self.rspCh, JSON.encode({'mid': self.mid, 'successVol': self.successVol}))
+            self.sender.publish(self.sendOrderRspCh, JSON.encode({'mid': self.mid, 'successVol': self.successVol}))
             self.toDB()
             self.service.stop()
 
@@ -90,7 +93,7 @@ class OrderRealClose(Base):
             'isBuy': int(self.isBuy),
             'isOpen': 0,
         }
-        self.sender.publish(self.reqCh, JSON.encode(sendData))
+        self.sender.publish(self.sendOrderCh, JSON.encode(sendData))
         self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderRealClose[sendOrder]', sendData)
 
 
@@ -108,5 +111,5 @@ class OrderRealClose(Base):
             'isBuy': int(self.isBuy),
             'isOpen': 0,
         }
-        self.sender.publish(self.reqCh, JSON.encode(sendData))
+        self.sender.publish(self.sendOrderCh, JSON.encode(sendData))
         self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderRealClose[sendIOC]', sendData)

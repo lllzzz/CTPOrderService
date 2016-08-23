@@ -11,12 +11,10 @@ from Service import Service
 from C import C
 from Trade import Trade
 
-appKey = sys.argv[1]
+appKey = sys.argv[2]
 trade = Trade(appKey)
 
-srvChannel = C.get('channel', 'service') % (appKey)
-srv = Service(appKey, [srvChannel], trade.process)
+srvChannel = C.get('channel', 'listen_model') % (appKey)
+srv = Service([srvChannel], trade.process)
 
 srv.run()
-logger = Logger()
-logger.write('trade_' + appKey, Logger.INFO, 'main[~]')

@@ -12,7 +12,6 @@ class OrderRealOpen(Base):
     """实时开仓单：直接下FAK单"""
     def __init__(self, appKey, req):
         Base.__init__(self, appKey, req)
-        self.selfCh = C.get('channel', 'trade_rsp') % (appKey)
 
 
     def run(self):
@@ -20,7 +19,12 @@ class OrderRealOpen(Base):
         self.service.run()
 
     def process(self, channel, data):
-        if channel != self.selfCh: return
+        if channel != self.tradeRspCh: return
+        if data['err'] > 0:
+            self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderRealOpen[error]', data)
+            self.error(data['err'])
+            return
+
         data = data['data']
         if self.orderID != data['orderID']: return
         data['volWaiting'] = self.total
@@ -50,7 +54,7 @@ class OrderRealOpen(Base):
 
         if isOver:
             self.endOrder(self.iid)
-            self.sender.publish(self.rspCh, JSON.encode({'mid': self.mid, 'successVol': self.successVol}))
+            self.sender.publish(self.sendOrderRspCh, JSON.encode({'mid': self.mid, 'successVol': self.successVol}))
             self.toDB()
             self.service.stop()
 
@@ -78,5 +82,5 @@ class OrderRealOpen(Base):
             'isOpen': 1,
         }
         self.startOrder(self.iid)
-        self.sender.publish(self.reqCh, JSON.encode(sendData))
+        self.sender.publish(self.sendOrderCh, JSON.encode(sendData))
         self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderRealOpen[sendOrder]', sendData)

@@ -18,10 +18,10 @@ if cmd != 'status':
     appKey = sys.argv[2]
 
 if cmd == 'start':
-    os.system('python ../src/main.py ' + appKey + ' &')
+    os.system('python ../src/main.py trade_service ' + appKey + ' &')
 elif cmd == 'stop':
     rds = Rds.getSender()
-    ch = C.get('channel', 'service') % (appKey)
+    ch = C.get('channel', 'listen_model') % (appKey)
     rds.publish(ch, 'stop')
 elif cmd == 'status':
     os.system('./find.sh')

@@ -12,9 +12,11 @@ import time
 rds = Rds.getLocal()
 srv = rds.pubsub()
 
-ch = C.get('channel', 'trade')
-rspCh = C.get('channel', 'trade_rsp') + '100'
-srv.subscribe(ch)
+orderCh = C.get('channel', 'send_order')
+rspCh = C.get('channel', 'listen_trade')
+srv.subscribe(orderCh)
+
+num = 0
 
 for msg in srv.listen():
     if msg['type'] == 'message':
@@ -22,6 +24,7 @@ for msg in srv.listen():
         data = JSON.decode(data)
         print data
         act = data['action']
+        appKey = data['appKey']
         if act == 'trade':
             type = data['type']
             if type == 1: # FAK
@@ -33,8 +36,8 @@ for msg in srv.listen():
                         'realPrice': data['price'],
                         'successVol': data['total'] - 1,
                     }
-                    rspData = {'data': rspData}
-                    rds.publish(rspCh, JSON.encode(rspData))
+                    rspData = {'data': rspData, 'err': 0, 'msg': 'ok'}
+                    rds.publish(rspCh % (appKey), JSON.encode(rspData))
                     rspData = {
                         'type': 'canceled',
                         'iid': data['iid'],
@@ -42,8 +45,8 @@ for msg in srv.listen():
                         'price': data['price'],
                         'cancelVol': 1,
                     }
-                    rspData = {'data': rspData}
-                    rds.publish(rspCh, JSON.encode(rspData))
+                    rspData = {'data': rspData, 'err': 0, 'msg': 'ok'}
+                    rds.publish(rspCh % (appKey), JSON.encode(rspData))
                 else: # FAK平仓测试，成1
                     rspData = {
                         'type': 'traded',
@@ -52,8 +55,8 @@ for msg in srv.listen():
                         'realPrice': data['price'],
                         'successVol': 1,
                     }
-                    rspData = {'data': rspData}
-                    rds.publish(rspCh, JSON.encode(rspData))
+                    rspData = {'data': rspData, 'err': 0, 'msg': 'ok'}
+                    rds.publish(rspCh % (appKey), JSON.encode(rspData))
                     rspData = {
                         'type': 'canceled',
                         'iid': data['iid'],
@@ -61,8 +64,8 @@ for msg in srv.listen():
                         'price': data['price'],
                         'cancelVol': data['total'] - 1,
                     }
-                    rspData = {'data': rspData}
-                    rds.publish(rspCh, JSON.encode(rspData))
+                    rspData = {'data': rspData, 'err': 0, 'msg': 'ok'}
+                    rds.publish(rspCh % (appKey), JSON.encode(rspData))
 
             elif type == 2: # IOC
                 rspData = {
@@ -72,25 +75,26 @@ for msg in srv.listen():
                     'realPrice': data['price'],
                     'successVol': data['total'],
                 }
-                rspData = {'data': rspData}
-                rds.publish(rspCh, JSON.encode(rspData))
+                rspData = {'data': rspData, 'err': 0, 'msg': 'ok'}
+                rds.publish(rspCh % (appKey), JSON.encode(rspData))
 
             elif type == 0: # NORMAL
-                # # case1 直接分批返回
-                # time.sleep(1)
-                # for i in range(data['total']):
-                #     time.sleep(1)
-                #     rspData = {
-                #         'type': 'traded',
-                #         'iid': data['iid'],
-                #         'orderID': data['orderID'],
-                #         'realPrice': data['price'],
-                #         'successVol': 1,
-                #     }
-                #     rspData = {'data': rspData}
-                #     rds.publish(rspCh, JSON.encode(rspData))
-                # # case1 end
-
+                if num % 2 == 0 :
+                    # case1 直接分批返回
+                    time.sleep(1)
+                    for i in range(data['total']):
+                        time.sleep(1)
+                        rspData = {
+                            'type': 'traded',
+                            'iid': data['iid'],
+                            'orderID': data['orderID'],
+                            'realPrice': data['price'],
+                            'successVol': 1,
+                        }
+                        rspData = {'data': rspData, 'err': 0, 'msg': 'ok'}
+                        rds.publish(rspCh % (appKey), JSON.encode(rspData))
+                    # case1 end
+                num += 1
                 # case2 不做处理，等待撤单
                 # case2 end
                 pass
@@ -99,10 +103,10 @@ for msg in srv.listen():
             rspData = {
                 'type': 'canceled',
                 'orderID': data['orderID'],
-                'cancelVol': 3,
+                'cancelVol': 7,
             }
-            rspData = {'data': rspData}
-            rds.publish(rspCh, JSON.encode(rspData))
+            rspData = {'data': rspData, 'err': 0, 'msg': 'ok'}
+            rds.publish(rspCh % (appKey), JSON.encode(rspData))
 
 
 

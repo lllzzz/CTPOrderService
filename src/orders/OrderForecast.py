@@ -12,8 +12,6 @@ class OrderForecast(Base):
     """预测开仓单，当tick达到下单价时检查是否撤单"""
     def __init__(self, appKey, req):
         Base.__init__(self, appKey, req)
-        self.tickCh = C.get('channel', 'tick') % (req['iid'])
-        self.selfCh = C.get('channel', 'trade_rsp') % (appKey)
         self.startCheckCancel = False
 
     def run(self):
@@ -24,15 +22,20 @@ class OrderForecast(Base):
 
         if channel == self.tickCh:
             if self.startCheckCancel:
-                if abs(self.price - data['price']) > self.cancelRange * self.minTick:
+                if abs(self.price - data[self.checkCancelKey]) > self.cancelRange * self.minTick:
                     self.__cancel(self.total)
             else:
-                if (not self.isBuy and data['price'] > self.price) or (self.isBuy and data['price'] < self.price):
+                if (not self.isBuy and data['price'] >= self.price) or (self.isBuy and data['price'] <= self.price):
                     self.startCheckCancel = True
                     self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecast[tick]', data)
             return
 
-        if channel == self.selfCh:
+        if channel == self.tradeRspCh:
+            if data['err'] > 0:
+                self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecast[error]', data)
+                self.error(data['err'])
+                return
+
             data = data['data']
             if self.orderID != data['orderID']: return
             data['volWaiting'] = self.total
@@ -63,7 +66,7 @@ class OrderForecast(Base):
 
         if isOver:
             self.endOrder(self.iid)
-            self.sender.publish(self.rspCh, JSON.encode({'mid': self.mid, 'successVol': self.successVol}))
+            self.sender.publish(self.sendOrderRspCh, JSON.encode({'mid': self.mid, 'successVol': self.successVol}))
             self.toDB()
             self.service.stop()
 
@@ -73,6 +76,7 @@ class OrderForecast(Base):
         self.mid   = self.req['mid']
         self.cancelRange = int(self.req['cancelRange'])
         self.minTick = int(C.get('min_tick', self.req['iid']))
+        self.checkCancelKey = 'price'
 
         self.iid   = self.req['iid']
         self.price = self.req['price']
@@ -81,6 +85,12 @@ class OrderForecast(Base):
         self.total = self.req['total']
         self.totalOri = self.total
         self.type = 0
+
+        if not self.isOpen:
+            if self.isBuy:
+                self.checkCancelKey = 'ask1'
+            else:
+                self.checkCancelKey = 'bid1'
 
         self.startOrder(self.iid)
 
@@ -96,7 +106,7 @@ class OrderForecast(Base):
             'isBuy': int(self.isBuy),
             'isOpen': int(self.isOpen),
         }
-        self.sender.publish(self.reqCh, JSON.encode(sendData))
+        self.sender.publish(self.sendOrderCh, JSON.encode(sendData))
         self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecast[sendOrder]', sendData)
 
 
@@ -106,5 +116,5 @@ class OrderForecast(Base):
             'appKey': int(self.appKey),
             'orderID': int(self.orderID),
         }
-        self.sender.publish(self.reqCh, JSON.encode(sendData))
+        self.sender.publish(self.sendOrderCh, JSON.encode(sendData))
         self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecast[cancel]', sendData)
