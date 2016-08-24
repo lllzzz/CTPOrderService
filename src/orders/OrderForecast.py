@@ -7,6 +7,8 @@ from Base import Base
 import demjson as JSON
 from Logger import Logger
 from C import C
+import datetime
+
 
 class OrderForecast(Base):
     """预测开仓单，当tick达到下单价时检查是否撤单"""
@@ -22,6 +24,10 @@ class OrderForecast(Base):
     def process(self, channel, data):
 
         if channel == self.tickCh:
+
+            if self.__checkTime(data):
+                self.__cancel(self.total)
+
             if self.startCheckCancel:
                 if abs(self.price - data[self.checkCancelKey]) > self.cancelRange * self.minTick:
                     self.__cancel(self.total)
@@ -79,6 +85,8 @@ class OrderForecast(Base):
         self.minTick = int(C.get('min_tick', self.req['iid']))
         self.cancelPriceH = int(self.req['cancelPriceH'])
         self.cancelPriceL = int(self.req['cancelPriceL'])
+        self.cancelTime = self.req['cancelTime']
+        self.cancelTime = datetime.datetime.strptime(self.cancelTime, '%Y%m%d_%H:%M:%S')
         self.checkCancelKey = 'price'
 
         self.iid   = self.req['iid']
@@ -123,3 +131,7 @@ class OrderForecast(Base):
         }
         self.sender.publish(self.sendOrderCh, JSON.encode(sendData))
         self.logger.write('trade_' + self.appKey, Logger.INFO, 'OrderForecast[cancel]', sendData)
+
+    def __checkTime(self, tick):
+        now = datetime.datetime.strptime(tick['time'], '%Y%m%d_%H:%M:%S')
+        return True if now > self.cancelTime else False
