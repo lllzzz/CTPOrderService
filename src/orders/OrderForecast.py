@@ -55,10 +55,16 @@ class OrderForecast(Base):
                 vol = data['successVol']
                 self.successVol += vol
                 # 更新持仓
-                if self.isBuy:
-                    self.buyVol(self.iid, vol, True)
+                if self.isOpen:
+                    if self.isBuy:
+                        self.buyVol(self.iid, vol, True)
+                    else:
+                        self.sellVol(self.iid, vol, True)
                 else:
-                    self.sellVol(self.iid, vol, True)
+                    if self.isBuy:
+                        self.sellVol(self.iid, vol, False)
+                    else:
+                        self.buyVol(self.iid, vol, False)
 
                 # 判断是否结束
                 self.total -= vol
