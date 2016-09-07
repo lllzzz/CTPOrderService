@@ -23,11 +23,12 @@ password = 123
 name = ctp_trade_dev
 
 [channel]
-tick = tick_%s
-trade = trade
-trade_rsp = trade_rsp_%s
-service = trade_srv_%s
-service_rsp = trade_srv_rsp_%s
+listen_tick = tick_%s
+listen_trade = trade_rsp_%s
+listen_model = model_order_%s
+
+send_order = trade
+send_order_rsp = order_rsp_%s
 
 [path]
 root = /app/root/path
