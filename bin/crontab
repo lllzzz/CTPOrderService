@@ -1,0 +1,5 @@
+35 11 * * 1-5 cd /home/dev/src/ctp/CTPOrderService/bin/ && python cron/complete_orders.py
+
+5 15 * * 1-5 cd /home/dev/src/ctp/CTPOrderService/bin/ && python cron/complete_orders.py
+
+35 2 * * 2-6 cd /home/dev/src/ctp/CTPOrderService/bin/ && python cron/complete_orders.py
