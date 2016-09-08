@@ -91,6 +91,7 @@ class Trade():
             CREATE TABLE IF NOT EXISTS `order` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
                 `appKey` varchar(50) NOT NULL DEFAULT '',
+                `mid` int(11) NOT NULL DEFAULT '0',
                 `iid` varchar(50) NOT NULL DEFAULT '',
                 `order_ids` varchar(500) NOT NULL DEFAULT '',
                 `type` int(11) NOT NULL DEFAULT '0',

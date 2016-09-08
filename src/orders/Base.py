@@ -78,8 +78,8 @@ class Base(threading.Thread):
     def toDB(self):
         db = DB()
         sql = '''
-            INSERT INTO `order` (`appKey`, `iid`, `order_ids`, `type`, `price`, `total`, `is_buy`, `is_open`)
-            VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ''' % (self.appKey, self.iid, ','.join(self.orderIDs),
-            self.type, self.price, self.totalOri, self.isBuy, self.isOpen)
+            INSERT INTO `order` (`appKey`, `mid`, `iid`, `order_ids`, `type`, `price`, `total`, `is_buy`, `is_open`)
+            VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ''' % (self.appKey, self.mid, self.iid,
+            ','.join(self.orderIDs), self.type, self.price, self.totalOri, self.isBuy, self.isOpen)
 
         db.insert(sql)
