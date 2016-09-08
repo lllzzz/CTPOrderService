@@ -33,3 +33,6 @@ send_order_rsp = order_rsp_%s
 [path]
 root = /app/root/path
 log = %(root)s/logs
+
+[min_tick]
+hc1701 = 1
