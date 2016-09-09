@@ -17,6 +17,9 @@ from OrderForecast import OrderForecast
 class Trade():
     """交易逻辑"""
 
+    # 订单初始化
+    ORDER_TYPE_INIT = -1
+
     # 预测单
     # 定义：提前下单，等待成交或者撤单信号，对于多手，成交一次以后撤掉剩下全部订单
     ORDER_TYPE_FORECAST = 0
@@ -66,11 +69,11 @@ class Trade():
     def process(self, channel, data):
         type = data['type']
         iid = data['iid']
-        if self.iids.count(iid) == 0:
-            self.iids.append(iid)
+        
+        if type == self.ORDER_TYPE_INIT:
             self.__initVol(iid)
 
-        if type == self.ORDER_TYPE_FORECAST:
+        elif type == self.ORDER_TYPE_FORECAST:
             order = OrderForecast(self.appKey, data)
             order.start()
 
