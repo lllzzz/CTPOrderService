@@ -24,4 +24,5 @@ elif cmd == 'stop':
     ch = C.get('channel', 'listen_model') % (appKey)
     rds.publish(ch, 'stop')
 elif cmd == 'status':
-    os.system('./find.sh')
+    appKey = sys.argv[2] if len(sys.argv) == 3 else ''
+    os.system('./find.sh %s' % appKey)
