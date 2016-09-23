@@ -32,7 +32,7 @@ if total > 0:
             lsu = lfu = leu = 0
             for l in logs:
                 type = l['type']
-                if type == TRADE:
+                if type == TRADE and lst == '':
                     lst = l['local_time']
                     lsu = l['local_usec']
 
